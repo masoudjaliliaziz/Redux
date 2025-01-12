@@ -8,12 +8,13 @@ function AccountOperations() {
   const [loanAmount, setLoanAmount] = useState("");
   const [loanPurpose, setLoanPurpose] = useState("");
   const [currency, setCurrency] = useState("USD");
-  const loan = useSelector((store) => store.account.loan);
+  const accountStore = useSelector((store) => store.account);
   const dispatch = useDispatch();
   function handleDeposit() {
     if (depositAmount === "") return;
-    dispatch(deposit(depositAmount));
+    dispatch(deposit(depositAmount, currency));
     setDepositAmount("");
+    setCurrency("");
   }
 
   function handleWithdrawal() {
@@ -53,7 +54,11 @@ function AccountOperations() {
             <option value="GBP">British Pound</option>
           </select>
 
-          <button onClick={handleDeposit}>Deposit {depositAmount}</button>
+          <button onClick={handleDeposit} disabled={accountStore.isLoading}>
+            {accountStore.isLoading
+              ? "converting..."
+              : `Deposit ${depositAmount}`}
+          </button>
         </div>
 
         <div>
@@ -84,9 +89,9 @@ function AccountOperations() {
           <button onClick={handleRequestLoan}>Request loan</button>
         </div>
 
-        {loan > 0 && (
+        {accountStore.loan > 0 && (
           <div>
-            <span>Pay back ${loan}</span>
+            <span>Pay back ${accountStore.loan}</span>
             <button onClick={handlePayLoan}>Pay loan</button>
           </div>
         )}
